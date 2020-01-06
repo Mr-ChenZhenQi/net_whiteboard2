@@ -1,46 +1,52 @@
-import socket
 import time
+from threading import Thread
 
-from UserDialog import UserDialog
+from connection import Connection
+from whiteboard import WhiteBaord
 
 
-class Connection:
+class Client(Thread,WhiteBaord):
+
     def __init__(self):
-        UserDialog.getUserInputIp()
-        self.host = UserDialog._Ip
-        self.port = UserDialog._port
-        print(self.host, self.port)
 
-        self.sock = socket.socket()
-        self.sock.connect((self.host, self.port))
-        data = self.sock.recv(3).decode()
-        print(data)
+        self.conn = Connection()
+        Thread.__init__(self)
+        WhiteBaord.__init__(self)
+        self._init_mouse_event()
+        self.setDaemon(True)
+        self.isMouseDown = False
+        self.x_pos = None
+        self.y_pos = None
 
-        usernames = self.sock.recv(1024).decode('utf-8')
-        print(usernames)
-        userList = usernames.split()
+    def _init_mouse_event(self):
+        self.drawing_area.bind("<Motion>",self.motion)
+        self.drawing_area.bind("<ButtonPress-1>",self.left_but_down)
+        self.drawing_area.bind("<ButtonRelease-1>",self.left_but_up)
+
+    def motion(self,event= None):
+        if self.isMouseDown ==True:
+            msg = ('D',self.x_pos,self.y_pos,event.x,event.y,'red')
+            self.conn.send_message(msg)
+            self.x_pos = event.x
+            self.y_pos = event.y
+
+    def left_but_up(self,event=None):
+        self.isMouseDown=False
+        print(event.x,event.y)
+
+    def left_but_down(self,event=None):
+        self.isMouseDown= True
+        self.x_pos = event.x
+        self.y_pos = event.y
+
+    def run(self):
         while True:
-            UserDialog.getUserNickName()
-            self.nickname = UserDialog._nickname
-            if self.nickname in userList:
-                UserDialog.show_error_box('用户名已存在，请换一个')
-            else:
-                break
-
-        self.sock.sendall((self.nickname.encode('utf-8')))
-
-    def receive_msg(self):
-        while True:
-            time.sleep(0.1)
-            data = self.sock.recv(1).decode('ISO-8859-1')
-            if data =='ß':
-                print('ß')
-                continue
-            else:
+            msg = self.conn.receive_msg()
+            if msg == 'xxx':
                 pass
 
-
+            time.sleep(0.1)
 if __name__ == '__main__':
-    con = Connection()
-    con.receive_msg()
-    print('start')
+    client=Client()
+    client.start()
+    client.show_window()

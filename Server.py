@@ -73,5 +73,5 @@ class Client:
             pass
 
 if __name__ == '__main__':
-    server = Server('0.0.0.0',6000)
+    server = Server('0.0.0.0',7000)
     server.start()
