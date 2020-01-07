@@ -57,7 +57,10 @@ class Client(Thread,WhiteBaord):
         self.x_pos = event.x
         self.y_pos = event.y
         self.last_time = time.time()
+        # if self.isMouseDown and self.drawing_tool =='line':
         self.line_x1,self.line_y1 = event.x,event.y
+        # elif self.isMouseDown and self.drawing_tool =='rectangle':
+        self.line_x1, self.line_y1 = event.x, event.y
 
     def run(self):
         while True:
