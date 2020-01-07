@@ -6,7 +6,7 @@ class WhiteBaord:
     Colors = {'b': 'blue', 'r': 'red', 'g': 'green', 'o': 'orange', 'y': 'yellow', 'c': 'cyan', 'p': 'purple1',
               'd': 'black', 's': 'snow'}
     line_width = 2
-    color = ''
+    color = 'blue'
     def __init__(self):
         self.init_whiteboard()
         self._init_item_button()
