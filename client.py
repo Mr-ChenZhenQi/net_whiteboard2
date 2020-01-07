@@ -1,14 +1,10 @@
 import time
 from threading import Thread
-
 from connection import Connection
 from whiteboard import WhiteBaord
 
-
 class Client(Thread,WhiteBaord):
-
     def __init__(self):
-
         self.conn = Connection()
         Thread.__init__(self)
         WhiteBaord.__init__(self)
@@ -17,6 +13,7 @@ class Client(Thread,WhiteBaord):
         self.isMouseDown = False
         self.x_pos = None
         self.y_pos = None
+        self.last_time = None
 
     def _init_mouse_event(self):
         self.drawing_area.bind("<Motion>",self.motion)
@@ -25,7 +22,13 @@ class Client(Thread,WhiteBaord):
 
     def motion(self,event= None):
         if self.isMouseDown ==True:
-            msg = ('D',self.x_pos,self.y_pos,event.x,event.y,'red')
+            now = time.time()
+            if now - self.last_time < 0.02:
+                print('too fast')
+                return
+            self.last_time = now
+
+            msg = ('D', self.x_pos, self.y_pos, event.x, event.y, 'red')
             self.conn.send_message(msg)
             self.x_pos = event.x
             self.y_pos = event.y
@@ -33,19 +36,22 @@ class Client(Thread,WhiteBaord):
     def left_but_up(self,event=None):
         self.isMouseDown=False
         print(event.x,event.y)
+        self.last_time = None
 
     def left_but_down(self,event=None):
         self.isMouseDown= True
         self.x_pos = event.x
         self.y_pos = event.y
+        self.last_time = time.time()
 
     def run(self):
         while True:
             msg = self.conn.receive_msg()
+            self.draw_from_msg(msg)
             if msg == 'xxx':
                 pass
 
-            time.sleep(0.1)
+            # time.sleep(0.1)
 if __name__ == '__main__':
     client=Client()
     client.start()

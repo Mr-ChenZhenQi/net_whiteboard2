@@ -4,12 +4,28 @@ class WhiteBaord:
     drawing_tool = "line"
     Colors = {'b': 'blue', 'r': 'red', 'g': 'green', 'o': 'orange', 'y': 'yellow', 'c': 'cyan', 'p': 'purple1',
               'd': 'black', 's': 'snow'}
+    line_width = 2
+
     def __init__(self):
         self.init_whiteboard()
         self._init_item_button()
         self._init_color_button()
         self.init_drawing_area()
         self.color = 'b'
+
+    def draw_from_msg(self,msg):
+        msgLst = msg.split()
+        draw_type = msgLst[0]
+        if draw_type == 'D':
+            self.draw_line(msgLst)
+        else:
+            pass
+
+    def draw_line(self, msgLst):
+        startX,startY,endX,endY=int(msgLst[1]),int(msgLst[2]),int(msgLst[3]),int(msgLst[4])
+        color = msgLst[5]
+        self.drawing_area.create_line(startX,startY,endX,endY,fill=color,width=self.line_width)
+
 
     def show_window(self):
         self.myWhiteBoard.mainloop()
@@ -72,5 +88,7 @@ class WhiteBaord:
         self.color= color
 
 
+
 if __name__ == '__main__':
     wb = WhiteBaord()
+    wb.show_window()

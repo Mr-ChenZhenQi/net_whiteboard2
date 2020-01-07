@@ -15,13 +15,14 @@ class Server:
         print(f'server listen at {self.port}')
         threading.Thread(target=self.pinger).start()
 
+    #心跳包
     def pinger(self):
         while True:
             time.sleep(1)
             for client in Server.Clients:
                 try:
                     msg='ß'.encode('ISO-8859-1')
-                    print('ß')
+                    # print('ß')
                     client.sock.send(msg)
                 except ConnectionResetError:
                     print('ConnectionResetError')
@@ -34,10 +35,9 @@ class Server:
                     print('ConnectionAbortedError')
                     pass
 
-
     def start(self):
         while True:
-            client_sock,client_addr = self.network.accept()
+            client_sock, client_addr = self.network.accept()
             print(f'client{client_addr}connected')
             client_sock.send('HLO'.encode())
             time.sleep(0.1)
@@ -47,19 +47,19 @@ class Server:
                 msg = msg+' '+client.clientID
             client_sock.send(msg.encode('utf-8'))
 
-            client_thread = threading.Thread(target=self.wait_for_user_nickname,args=[client_sock])
+            client_thread = threading.Thread(target=self.wait_for_user_nickname, args=[client_sock])
             client_thread.start()
 
-    def wait_for_user_nickname(self,client_sock):
+    def wait_for_user_nickname(self, client_sock):
         new_user_id = client_sock.recv(1024).decode('utf-8')
         print(new_user_id)
-        client = Client(client_sock,new_user_id)
+        client = Client(client_sock, new_user_id)
         Server.Clients.append(client)
         client.start()
 
 
 class Client:
-    def __init__(self,sock,clientID):
+    def __init__(self, sock, clientID):
         self.sock = sock
         self.clientID = clientID
         self._run = True
@@ -68,10 +68,28 @@ class Client:
         self._run = False
 
     def start(self):
-        while self._run:
-            time.sleep(0.1)
+        try:
+            while self._run:
+                msg = ''
+                while True:
+                    data = self.sock.recv(1).decode('ISO-8859-1')
+                    msg += data
+                    if data == 'Ø':
+                        break
+
+                if msg[0] == 'D':
+                    self.broadcast2Clients(msg)
+
+                pass
+        except ConnectionResetError('远程主机强迫关闭了一个现有的连接'):
             pass
 
+
+    def broadcast2Clients(self,msg):
+        msg = msg.encode('ISO-8859-1')
+        for client in Server.Clients:
+            client.sock.sendall(msg)
+
 if __name__ == '__main__':
-    server = Server('0.0.0.0',7000)
+    server = Server('0.0.0.0',6000)
     server.start()
