@@ -31,7 +31,7 @@ class Client(Thread,WhiteBaord):
                 return
             self.last_time = now
 
-            msg = ('D', self.x_pos, self.y_pos, event.x, event.y, 'red')
+            msg = ('D', self.x_pos, self.y_pos, event.x, event.y, WhiteBaord.color)
             self.conn.send_message(msg)
             self.x_pos = event.x
             self.y_pos = event.y
@@ -49,7 +49,7 @@ class Client(Thread,WhiteBaord):
             return
         else:
             cmd_type = Client.Objects[tool]
-            msg = (cmd_type,self.line_x1, self.line_y1, self.line_x2, self.line_y2, 'red')
+            msg = (cmd_type,self.line_x1, self.line_y1, self.line_x2, self.line_y2, WhiteBaord.color)
             self.conn.send_message(msg)
 
     def left_but_down(self,event=None):

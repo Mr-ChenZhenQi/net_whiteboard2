@@ -6,13 +6,13 @@ class WhiteBaord:
     Colors = {'b': 'blue', 'r': 'red', 'g': 'green', 'o': 'orange', 'y': 'yellow', 'c': 'cyan', 'p': 'purple1',
               'd': 'black', 's': 'snow'}
     line_width = 2
-
+    color = ''
     def __init__(self):
         self.init_whiteboard()
         self._init_item_button()
         self._init_color_button()
         self.init_drawing_area()
-        self.color = 'b'
+
 
     def draw_from_msg(self,msg):
         msgLst = msg.split()
@@ -101,7 +101,8 @@ class WhiteBaord:
 
     def set_color(self, color):
         print(color)
-        self.color= color
+        WhiteBaord.color = WhiteBaord.Colors[color]
+
 
     def draw_oval(self, msgLst):
         startX, startY, endX, endY = int(msgLst[1]), int(msgLst[2]), int(msgLst[3]), int(msgLst[4])
