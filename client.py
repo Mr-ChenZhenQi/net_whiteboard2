@@ -4,6 +4,9 @@ from connection import Connection
 from whiteboard import WhiteBaord
 
 class Client(Thread,WhiteBaord):
+
+    Objects = {'line': 'L', 'oval': 'O', 'circle': 'C', 'rectangle': 'R', 'square': 'S', 'erase': 'E', 'drag': 'DR'}
+
     def __init__(self):
         self.conn = Connection()
         Thread.__init__(self)
@@ -21,7 +24,7 @@ class Client(Thread,WhiteBaord):
         self.drawing_area.bind("<ButtonRelease-1>",self.left_but_up)
 
     def motion(self,event= None):
-        if self.isMouseDown ==True:
+        if self.isMouseDown ==True and self.drawing_tool == 'pencil':
             now = time.time()
             if now - self.last_time < 0.02:
                 print('too fast')
@@ -37,12 +40,24 @@ class Client(Thread,WhiteBaord):
         self.isMouseDown=False
         print(event.x,event.y)
         self.last_time = None
+        self.line_x2,self.line_y2=event.x,event.y
+        self.draw_one_obj()
+
+    def draw_one_obj(self):
+        tool = self.drawing_tool
+        if tool not in Client.Objects.keys():
+            return
+        else:
+            cmd_type = Client.Objects[tool]
+            msg = (cmd_type,self.line_x1, self.line_y1, self.line_x2, self.line_y2, 'red')
+            self.conn.send_message(msg)
 
     def left_but_down(self,event=None):
         self.isMouseDown= True
         self.x_pos = event.x
         self.y_pos = event.y
         self.last_time = time.time()
+        self.line_x1,self.line_y1 = event.x,event.y
 
     def run(self):
         while True:
