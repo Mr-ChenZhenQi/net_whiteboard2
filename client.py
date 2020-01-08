@@ -57,8 +57,14 @@ class Client(Thread,WhiteBaord):
         self.line_x2,self.line_y2=event.x,event.y
         if self.drawing_tool =='text':
             self.draw_text()
+        elif self.drawing_tool == 'drag':
+            self.do_drag()
         else:
             self.draw_one_obj()
+
+    def do_drag(self):
+        msg = ('DR',self.last_click_obj,self.line_x2 - self.line_x1,self.line_y2 - self.line_y1)
+        self.conn.send_message(msg)
 
     def draw_text(self):
         text_to_draw = UserDialog._Text
@@ -83,6 +89,11 @@ class Client(Thread,WhiteBaord):
 
         if self.isMouseDown == True and self.drawing_tool == 'eraser':
             self.send_del_msg(event)
+
+        try:
+            self.last_click_obj = self.drawing_area.gettags('current')[0]
+        except Exception:
+            pass
 
     def run(self):
         while True:

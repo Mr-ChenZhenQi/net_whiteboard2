@@ -38,8 +38,15 @@ class WhiteBaord:
             self.draw_Text(msgLst)
         if draw_type == 'Z':
             self.delete_obj(msgLst)
+        if draw_type == 'DR':
+            self.drag_obj(msgLst)
         else:
             pass
+
+    def drag_obj(self,msgLst):
+        item = self.drawing_area.find_withtag(msgLst[1])
+        self.drawing_area.move(item,int(msgLst[2]),int(msgLst[3]))
+
 
     def delete_obj(self,msgLst):
         item = self.drawing_area.find_withtag(msgLst[1])

@@ -83,7 +83,7 @@ class Client:
                 if data == 'Ø':
                     break
 
-            if msg[0] in ['D','R','L','O','C','S','T']:
+            if msg[0] in ['D','R','L','O','C','S','T','DR']:
                 self.broadcast2Clients(msg)
             elif msg[0] in ['Z']:
                 splitmsg = msg.split()
