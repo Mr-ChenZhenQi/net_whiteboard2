@@ -16,7 +16,7 @@ class Server:
         print(f'server listen at {self.port}')
         threading.Thread(target=self.pinger).start()
 
-    #心跳包
+    #心跳线程
     def pinger(self):
         while True:
             time.sleep(1)
@@ -65,7 +65,7 @@ class Server:
 
 
 class Client:
-    msgID = 0
+    msgID = 1
     def __init__(self, sock, clientID):
         self.sock = sock
         self.clientID = clientID
@@ -75,28 +75,37 @@ class Client:
         self._run = False
 
     def start(self):
-        try:
-            while self._run:
-                msg = ''
-                while True:
-                    data = self.sock.recv(1).decode('ISO-8859-1')
-                    msg += data
-                    if data == 'Ø':
-                        break
-                Server.logs[Client.msgID] = msg
+        while self._run:
+            msg = ''
+            while True:
+                data = self.sock.recv(1).decode('ISO-8859-1')
+                msg += data
+                if data == 'Ø':
+                    break
 
-                if msg[0] in ['D','R','L','O','C','S','T']:
-                    self.broadcast2Clients(msg)
-                Client.msgID += 1
-                pass
-        except ConnectionResetError('远程主机强迫关闭了一个现有的连接'):
-            pass
+            if msg[0] in ['D','R','L','O','C','S','T']:
+                self.broadcast2Clients(msg)
+            elif msg[0] in ['Z']:
+                splitmsg = msg.split()
+                self.delete_shape(msg,splitmsg)
+
+
+    def delete_shape(self,msg,splitmsg):
+        if int(splitmsg[1]) in Server.logs:
+            Server.logs.pop(int(splitmsg[1]))
+            msg = msg.encode('ISO-8859-1')
+            for client in Server.Clients:
+                client.sock.send(msg)
 
 
     def broadcast2Clients(self,msg):
+        msg = msg[:-1] + str(Client.msgID) + ' Ø'
+        Server.logs[Client.msgID] = msg
         msg = msg.encode('ISO-8859-1')
         for client in Server.Clients:
             client.sock.sendall(msg)
+
+        Client.msgID += 1
 
 if __name__ == '__main__':
     server = Server('0.0.0.0',6000)

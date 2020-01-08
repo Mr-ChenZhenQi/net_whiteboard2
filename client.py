@@ -32,11 +32,23 @@ class Client(Thread,WhiteBaord):
                 print('too fast')
                 return
             self.last_time = now
-
-            msg = ('D', self.x_pos, self.y_pos, event.x, event.y, WhiteBaord.color)
+            msg = ('D',self.x_pos,self.y_pos, event.x, event.y, WhiteBaord.color)
             self.conn.send_message(msg)
             self.x_pos = event.x
             self.y_pos = event.y
+        elif self.drawing_tool == 'eraser' and self.isMouseDown == True:
+            self.send_del_msg(event)
+
+
+    def send_del_msg(self,event):
+        canvas_item_tuple = self.drawing_area.find_overlapping(event.x - 2, event.y - 2, event.x + 2, event.y + 2)
+        if len(canvas_item_tuple) > 0:
+            to_delete_id = max(canvas_item_tuple)
+            tags = self.drawing_area.gettags(to_delete_id)
+            msgid = tags[0]
+            msg = ('Z', msgid)
+            self.conn.send_message(msg)
+
 
     def left_but_up(self,event=None):
         self.isMouseDown=False
@@ -67,14 +79,15 @@ class Client(Thread,WhiteBaord):
         self.x_pos = event.x
         self.y_pos = event.y
         self.last_time = time.time()
-        # if self.isMouseDown and self.drawing_tool =='line':
         self.line_x1,self.line_y1 = event.x,event.y
-        # elif self.isMouseDown and self.drawing_tool =='rectangle':
-        self.line_x1, self.line_y1 = event.x, event.y
+
+        if self.isMouseDown == True and self.drawing_tool == 'eraser':
+            self.send_del_msg(event)
 
     def run(self):
         while True:
             msg = self.conn.receive_msg()
+            # print('clientrecv',msg)
             self.draw_from_msg(msg)
             if msg == 'xxx':
                 pass
