@@ -63,8 +63,9 @@ class Client(Thread,WhiteBaord):
             self.draw_one_obj()
 
     def do_drag(self):
-        msg = ('DR',self.last_click_obj,self.line_x2 - self.line_x1,self.line_y2 - self.line_y1)
-        self.conn.send_message(msg)
+        if self.last_click_obj != None:
+            msg = ('DR',self.last_click_obj,self.line_x2 - self.line_x1,self.line_y2 - self.line_y1)
+            self.conn.send_message(msg)
 
     def draw_text(self):
         text_to_draw = UserDialog._Text

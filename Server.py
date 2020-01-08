@@ -91,16 +91,16 @@ class Client:
 
 
     def delete_shape(self,msg,splitmsg):
-        if int(splitmsg[1]) in Server.logs:
-            Server.logs.pop(int(splitmsg[1]))
+        if splitmsg[1] in Server.logs:
+            Server.logs.pop(splitmsg[1])
             msg = msg.encode('ISO-8859-1')
             for client in Server.Clients:
                 client.sock.send(msg)
 
 
     def broadcast2Clients(self,msg):
-        msg = msg[:-1] + str(Client.msgID) + ' Ø'
-        Server.logs[Client.msgID] = msg
+        msg = msg[:-1] + 'm' + str(Client.msgID) + ' Ø'
+        Server.logs['m'+str(Client.msgID)] = msg
         msg = msg.encode('ISO-8859-1')
         for client in Server.Clients:
             client.sock.sendall(msg)
