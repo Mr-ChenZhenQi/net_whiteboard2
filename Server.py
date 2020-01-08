@@ -85,7 +85,7 @@ class Client:
                         break
                 Server.logs[Client.msgID] = msg
 
-                if msg[0] in ['D','R','L','O','C','S']:
+                if msg[0] in ['D','R','L','O','C','S','T']:
                     self.broadcast2Clients(msg)
                 Client.msgID += 1
                 pass
